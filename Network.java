@@ -351,9 +351,11 @@ public class Network extends Thread {
      * @param inPacket transaction transferred from the client
      * 
      */
-        public static boolean send(Transactions inPacket)
+        public static synchronized boolean send(Transactions inPacket) throws InterruptedException
         {
-            synchronized(Network.class){ // locking on the shared resources 
+            while(inBufferStatus.equals("full")){
+                Network.class.wait();
+            }
         	
         		  inComingPacket[inputIndexClient].setAccountNumber(inPacket.getAccountNumber());
         		  inComingPacket[inputIndexClient].setOperationType(inPacket.getOperationType());
@@ -378,7 +380,7 @@ public class Network extends Thread {
         			  setInBufferStatus("normal");
         		  }
                   // critical section ends here
-            }
+            Network.class.notifyAll(); // notifies waiting threads that the buffer is no longer full
             return true;
         }   
          
@@ -387,8 +389,12 @@ public class Network extends Thread {
      * @param outPacket updated transaction received by the client
      * 
      */
-         public static boolean receive(Transactions outPacket)
+         public static synchronized boolean receive(Transactions outPacket) throws InterruptedException
         {
+
+                while(outBufferStatus.equals("empty")){
+                    Network.class.wait();
+                }
 
         		 outPacket.setAccountNumber(outGoingPacket[outputIndexClient].getAccountNumber());
         		 outPacket.setOperationType(outGoingPacket[outputIndexClient].getOperationType());
@@ -397,8 +403,8 @@ public class Network extends Thread {
         		 outPacket.setTransactionError(outGoingPacket[outputIndexClient].getTransactionError());
         		 outPacket.setTransactionStatus("done");
             
-        		 /* System.out.println("\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient); */
-        		 /* System.out.println("\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber()); */
+        		System.out.println("\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient); 
+        		System.out.println("\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber());
             
         		 setoutputIndexClient(((getoutputIndexClient( ) + 1) % getMaxNbPackets( ))); /* Increment the output buffer index for the client */
         		 /* Check if output buffer is empty */
@@ -406,14 +412,14 @@ public class Network extends Thread {
         		 {	
         			 setOutBufferStatus("empty");
             
-        			/* System.out.println("\n DEBUG : Network.receive() - outGoingBuffer status " + getOutBufferStatus()); */
+        			System.out.println("\n DEBUG : Network.receive() - outGoingBuffer status " + getOutBufferStatus()); 
         		 }
         		 else 
         		 {
         			 setOutBufferStatus("normal"); 
         		 }
-        	            
-             return true;
+        	Network.class.notifyAll(); // notifies waiting threads that the buffer is no longer empty   
+            return true;
         }   
          
     
@@ -434,8 +440,8 @@ public class Network extends Thread {
         		outGoingPacket[inputIndexServer].setTransactionError(outPacket.getTransactionError());
         		outGoingPacket[inputIndexServer].setTransactionStatus("transferred");
             
-        		/* System.out.println("\n DEBUG : Network.transferOut() - index inputIndexServer " + inputIndexServer); */ 
-        		/* System.out.println("\n DEBUG : Network.transferOut() - account number " + outGoingPacket[inputIndexServer].getAccountNumber()); */
+        		System.out.println("\n DEBUG : Network.transferOut() - index inputIndexServer " + inputIndexServer);
+        		System.out.println("\n DEBUG : Network.transferOut() - account number " + outGoingPacket[inputIndexServer].getAccountNumber());
             
         		setinputIndexServer(((getinputIndexServer() + 1) % getMaxNbPackets())); /* Increment the output buffer index for the server */
         		/* Check if output buffer is full */
@@ -443,7 +449,7 @@ public class Network extends Thread {
         		{
         			setOutBufferStatus("full");
                 
-        			/* System.out.println("\n DEBUG : Network.transferOut() - outGoingBuffer status " + getOutBufferStatus()); */
+        			System.out.println("\n DEBUG : Network.transferOut() - outGoingBuffer status " + getOutBufferStatus());
         		}
         		else
         		{
@@ -469,8 +475,8 @@ public class Network extends Thread {
     		     inPacket.setTransactionError(inComingPacket[outputIndexServer].getTransactionError());
     		     inPacket.setTransactionStatus("received");
            
-    		     /* System.out.println("\n DEBUG : Network.transferIn() - index outputIndexServer " + outputIndexServer); */
-    		     /* System.out.println("\n DEBUG : Network.transferIn() - account number " + inPacket.getAccountNumber()); */
+    		     System.out.println("\n DEBUG : Network.transferIn() - index outputIndexServer " + outputIndexServer);
+    		     System.out.println("\n DEBUG : Network.transferIn() - account number " + inPacket.getAccountNumber());
             
     		     setoutputIndexServer(((getoutputIndexServer() + 1) % getMaxNbPackets()));	/* Increment the input buffer index for the server */
     		     /* Check if input buffer is empty */
@@ -478,7 +484,7 @@ public class Network extends Thread {
     		     {
     		    	 setInBufferStatus("empty");
                 
-    		    	/* System.out.println("\n DEBUG : Network.transferIn() - inComingBuffer status " + getInBufferStatus()); */
+    		    	System.out.println("\n DEBUG : Network.transferIn() - inComingBuffer status " + getInBufferStatus());
     		     }
     		     else 
     		     {
@@ -560,9 +566,9 @@ public class Network extends Thread {
     {	
     	System.out.println("\n DEBUG : Network.run() - starting network thread"); 
     	
-    	while (true)
+    	while (getOutBufferStatus().equals("empty") || getInBufferStatus().equals("empty"))
     	{
-    		/*................................................................................................................................................................*/
+    		Thread.yield();
     	}    
     }
 }
