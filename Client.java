@@ -213,10 +213,10 @@ public class Client extends Thread {
     	Transactions transact = new Transactions();
     	long sendClientStartTime, sendClientEndTime, receiveClientStartTime, receiveClientEndTime;
      
-         /*................................................................................................................................................................................................................*/
+         
               
-                System.out.println("\n Terminating client receiving thread - " + " Running time " +  (receiveClientEndTime - receiveClientStartTime));
-            }
-                
+        System.out.println("\n Terminating client receiving thread - " + " Running time " +  (receiveClientEndTime - receiveClientStartTime));
     }
+                
+}
 

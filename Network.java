@@ -353,6 +353,7 @@ public class Network extends Thread {
      */
         public static boolean send(Transactions inPacket)
         {
+            synchronized(Network.class){ // locking on the shared resources 
         	
         		  inComingPacket[inputIndexClient].setAccountNumber(inPacket.getAccountNumber());
         		  inComingPacket[inputIndexClient].setOperationType(inPacket.getOperationType());
@@ -361,22 +362,23 @@ public class Network extends Thread {
         		  inComingPacket[inputIndexClient].setTransactionError(inPacket.getTransactionError());
         		  inComingPacket[inputIndexClient].setTransactionStatus("transferred");
             
-        		 /* System.out.println("\n DEBUG : Network.send() - index inputIndexClient " + inputIndexClient); */
-        		  /* System.out.println("\n DEBUG : Network.send() - account number " + inComingPacket[inputIndexClient].getAccountNumber()); */
+        		  System.out.println("\n DEBUG : Network.send() - index inputIndexClient " + inputIndexClient); 
+        		  System.out.println("\n DEBUG : Network.send() - account number " + inComingPacket[inputIndexClient].getAccountNumber());
             
         		  setinputIndexClient(((getinputIndexClient( ) + 1) % getMaxNbPackets ()));	/* Increment the input buffer index  for the client */
         		  /* Check if input buffer is full */
-        		  if (getinputIndexClient() == getoutputIndexServer())
+        		  if (getinputIndexClient() == getoutputIndexServer()) // buffer is full
         		  {	
         			  setInBufferStatus("full");
             	
-        			/* System.out.println("\n DEBUG : Network.send() - inComingBuffer status " + getInBufferStatus()); */
+        			  System.out.println("\n DEBUG : Network.send() - inComingBuffer status " + getInBufferStatus());
         		  }
-        		  else 
+        		  else // buffer is empty
         		  {
         			  setInBufferStatus("normal");
         		  }
-            
+                  // critical section ends here
+            }
             return true;
         }   
          
@@ -556,7 +558,7 @@ public class Network extends Thread {
      */
     public void run()
     {	
-    	/* System.out.println("\n DEBUG : Network.run() - starting network thread"); */
+    	System.out.println("\n DEBUG : Network.run() - starting network thread"); 
     	
     	while (true)
     	{
