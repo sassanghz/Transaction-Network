@@ -26,8 +26,12 @@ public class Driver {
         Client objClient2 = new Client("receiving");        /* Start the receiving client thread */
         objClient2.start();
 
-        Server server1 = new Server();
-        Server server2 = new Server();
+        //Thread serverThread1 = new Thread(new Server()); // Create a new thread for the server
+        //serverThread1.start();
+
+        //Thread serverThread2 = new Thread(new Server()); // Create another thread for the server
+        //serverThread2.start();
+
         
       /*..............................................................................................................................................................*/
        
