@@ -351,11 +351,8 @@ public class Network extends Thread {
      * @param inPacket transaction transferred from the client
      * 
      */
-        public static synchronized boolean send(Transactions inPacket) throws InterruptedException
+        public static boolean send(Transactions inPacket)
         {
-            while(inBufferStatus.equals("full")){
-                Network.class.wait();
-            }
         	
         		  inComingPacket[inputIndexClient].setAccountNumber(inPacket.getAccountNumber());
         		  inComingPacket[inputIndexClient].setOperationType(inPacket.getOperationType());
@@ -364,8 +361,8 @@ public class Network extends Thread {
         		  inComingPacket[inputIndexClient].setTransactionError(inPacket.getTransactionError());
         		  inComingPacket[inputIndexClient].setTransactionStatus("transferred");
             
-        		  System.out.println("\n DEBUG : Network.send() - index inputIndexClient " + inputIndexClient); 
-        		  System.out.println("\n DEBUG : Network.send() - account number " + inComingPacket[inputIndexClient].getAccountNumber());
+        		  //System.out.println("\n DEBUG : Network.send() - index inputIndexClient " + inputIndexClient); 
+        		  //System.out.println("\n DEBUG : Network.send() - account number " + inComingPacket[inputIndexClient].getAccountNumber());
             
         		  setinputIndexClient(((getinputIndexClient( ) + 1) % getMaxNbPackets ()));	/* Increment the input buffer index  for the client */
         		  /* Check if input buffer is full */
@@ -380,7 +377,6 @@ public class Network extends Thread {
         			  setInBufferStatus("normal");
         		  }
                   // critical section ends here
-            Network.class.notifyAll(); // notifies waiting threads that the buffer is no longer full
             return true;
         }   
          
@@ -389,12 +385,8 @@ public class Network extends Thread {
      * @param outPacket updated transaction received by the client
      * 
      */
-         public static synchronized boolean receive(Transactions outPacket) throws InterruptedException
+         public static boolean receive(Transactions outPacket) 
         {
-
-                while(outBufferStatus.equals("empty")){
-                    Network.class.wait();
-                }
 
         		 outPacket.setAccountNumber(outGoingPacket[outputIndexClient].getAccountNumber());
         		 outPacket.setOperationType(outGoingPacket[outputIndexClient].getOperationType());
@@ -403,8 +395,8 @@ public class Network extends Thread {
         		 outPacket.setTransactionError(outGoingPacket[outputIndexClient].getTransactionError());
         		 outPacket.setTransactionStatus("done");
             
-        		System.out.println("\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient); 
-        		System.out.println("\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber());
+        		//System.out.println("\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient); 
+        		//System.out.println("\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber());
             
         		 setoutputIndexClient(((getoutputIndexClient( ) + 1) % getMaxNbPackets( ))); /* Increment the output buffer index for the client */
         		 /* Check if output buffer is empty */
@@ -418,7 +410,7 @@ public class Network extends Thread {
         		 {
         			 setOutBufferStatus("normal"); 
         		 }
-        	Network.class.notifyAll(); // notifies waiting threads that the buffer is no longer empty   
+        	   
             return true;
         }   
          
