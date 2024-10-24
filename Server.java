@@ -263,7 +263,7 @@ public class Server extends Thread {
      * @return 
      * @param trans
      */
-     public boolean processTransactions(Transactions trans)
+     public boolean processTransactions(Transactions trans) throws InterruptedException
      {   int accIndex;             	/* Index position of account to update */
          double newBalance; 		/* Updated account balance */
          
@@ -421,7 +421,7 @@ public class Server extends Thread {
 
         serverStartTime = System.currentTimeMillis();
     
-	    //System.out.println("\n DEBUG : Server.run() - starting server thread " + getServerThreadId() + " " + Network.getServerConnectionStatus()); 
+	    System.out.println("\n DEBUG : Server.run() - starting server thread " + getServerThreadId() + " " + Network.getServerConnectionStatus()); 
     	
 	    if(getServerThreadId().equals("s1")){
             processTransactions(trans);
