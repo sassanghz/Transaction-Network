@@ -418,19 +418,28 @@ public class Server extends Thread {
     public void run()
     {   Transactions trans = new Transactions();
     	long serverStartTime, serverEndTime;
+
+        serverStartTime = System.currentTimeMillis();
     
-	    System.out.println("\n DEBUG : Server.run() - starting server thread " + getServerThreadId() + " " + Network.getServerConnectionStatus()); 
+	    //System.out.println("\n DEBUG : Server.run() - starting server thread " + getServerThreadId() + " " + Network.getServerConnectionStatus()); 
     	
-	    serverStartTime = System.currentTimeMillis();
+	    if(getServerThreadId().equals("s1")){
+            processTransactions(trans);
+            setServerThreadRunningStatus1("Terminated");
+        }
 
-        processTransactions(trans);
+        if(getServerThreadId().equals("s2")){
+            processTransactions(trans);
+            setServerThreadRunningStatus2("Terminated");
+        }
 
-        Network.disconnect(serverThreadId);
+        if(getServerThreadRunningStatus2().equals("Terminated") && getServerThreadRunningStatus1().equals("Terminated")){
+            Network.disconnect(Network.getServerIP());
+            serverEndTime = System.currentTimeMillis();
+            System.out.println("\n Terminating server thread - " + " Running time " + (serverEndTime - serverStartTime) + " milliseconds");
 
-        serverEndTime = System.currentTimeMillis();	
+        }
         
-        System.out.println("\n Terminating server thread - " + " Running time " + (serverEndTime - serverStartTime) + " milliseconds");
-	
     }
 }
 
