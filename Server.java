@@ -263,7 +263,7 @@ public class Server extends Thread {
      * @return 
      * @param trans
      */
-     public boolean processTransactions(Transactions trans) throws InterruptedException
+     public boolean processTransactions(Transactions trans)
      {   int accIndex;             	/* Index position of account to update */
          double newBalance; 		/* Updated account balance */
          
@@ -278,7 +278,7 @@ public class Server extends Thread {
                     break;
                 }
 
-                Thread.yield();
+                //Thread.yield();
             }
         	 
         	 if (!Network.getInBufferStatus().equals("empty"))
@@ -319,7 +319,7 @@ public class Server extends Thread {
 					} 
 
             	while(Network.getOutBufferStatus().equals("full")){
-                    Thread.yield();
+                    //Thread.yield();
                 }
         		
         		System.out.println("\n DEBUG : Server.processTransactions() - transferring out account " + trans.getAccountNumber());
