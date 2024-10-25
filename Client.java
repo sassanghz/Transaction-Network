@@ -227,10 +227,7 @@ public class Client extends Thread {
             }
     
             sendClientEndTime = System.currentTimeMillis();
-            System.out.println("\n Terminating client sending thread - Running time: " 
-                                + (sendClientEndTime - sendClientStartTime) + " ms");
-    
-            // Disconnect client after sending transactions
+            System.out.println("\n Terminating client sending thread - Running time: "  + (sendClientEndTime - sendClientStartTime) + " ms");
     
         } else if (clientOperation.equals("receiving")) {
             // Receiving client process
