@@ -18,7 +18,7 @@ public class Driver {
      */
     public static void main(String[] args) {
         
-    	Network objNetwork = new Network( );            /* Activate the network */
+    	Network objNetwork = new Network();            /* Activate the network */
         objNetwork.start();
 
         Client objClient1 = new Client("sending");          /* Start the sending client thread */

@@ -272,14 +272,6 @@ public class Server extends Thread {
          /* Process the accounts until the client disconnects */
          while ((!Network.getClientConnectionStatus().equals("disconnected")))
          {
-            while(Network.getInBufferStatus().equals("empty")){
-                
-                if(Network.getClientConnectionStatus().equals("disconnected")){
-                    break;
-                }
-
-                //Thread.yield();
-            }
         	 
         	 if (!Network.getInBufferStatus().equals("empty"))
         	 { 
@@ -317,10 +309,6 @@ public class Server extends Thread {
                             
                             System.out.println("\n DEBUG : Server.processTransactions() - Obtaining balance from account" + trans.getAccountNumber()); 
 					} 
-
-            	while(Network.getOutBufferStatus().equals("full")){
-                    //Thread.yield();
-                }
         		
         		System.out.println("\n DEBUG : Server.processTransactions() - transferring out account " + trans.getAccountNumber());
         		 
@@ -340,25 +328,28 @@ public class Server extends Thread {
      * @param i, amount
      */
    
-     public synchronized double deposit(int i, double amount)
-     {  double curBalance;      /* Current account balance */
+     public double deposit(int i, double amount)
+     {  
+            double curBalance;      /* Current account balance */
        
-     		curBalance = account[i].getBalance( );          /* Get current account balance */
-        
-     		/* NEW : A server thread is blocked before updating the 10th , 20th, ... 70th account balance in order to simulate an inconsistency situation */
-     		if (((i + 1) % 10 ) == 0)
-     		{
-     			try {
-     					Thread.sleep(100);
-     				}
-     				catch (InterruptedException e) {
-        	
-     				} 
-     		} 
-        
-     		System.out.println("\n DEBUG : Server.deposit - " + "i " + i + " Current balance " + curBalance + " Amount " + amount + " " + getServerThreadId());
-        
-     		account[i].setBalance(curBalance + amount);     /* Deposit amount in the account */
+            synchronized(account[i]){
+                curBalance = account[i].getBalance( );          /* Get current account balance */
+            
+                /* NEW : A server thread is blocked before updating the 10th , 20th, ... 70th account balance in order to simulate an inconsistency situation */
+                if (((i + 1) % 10 ) == 0)
+                {
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } 
+                } 
+            
+                System.out.println("\n DEBUG : Server.deposit - " + "i " + i + " Current balance " + curBalance + " Amount " + amount + " " + getServerThreadId());
+            
+                account[i].setBalance(curBalance + amount);     /* Deposit amount in the account */
+            }
      		return account[i].getBalance ();                /* Return updated account balance */
      }
          
