@@ -360,16 +360,19 @@ public class Server extends Thread {
      * @param i, amount
      */
  
-     public synchronized double withdraw(int i, double amount)
-     {  double curBalance;      /* Current account balance */
+     public double withdraw(int i, double amount){  
+        double curBalance;      /* Current account balance */
         
-     	curBalance = account[i].getBalance( );          /* Get current account balance */
-          
-        System.out.println("\n DEBUG : Server.withdraw - " + "i " + i + " Current balance " + curBalance + " Amount " + amount + " " + getServerThreadId());
-        
-        account[i].setBalance(curBalance - amount);     /* Withdraw amount in the account */
+        synchronized(account[i]){
+            
+            curBalance = account[i].getBalance( );          /* Get current account balance */
+            
+            System.out.println("\n DEBUG : Server.withdraw - " + "i " + i + " Current balance " + curBalance + " Amount " + amount + " " + getServerThreadId());
+            
+            account[i].setBalance(curBalance - amount);     /* Withdraw amount in the account */
+        }
+       
         return account[i].getBalance ();                /* Return updated account balance */
-     	
      }
 
     /**
