@@ -31,6 +31,9 @@ public class Driver {
 
         Server server2 = new Server("s2");
         server2.start();       
+
+        Server server3 = new Server("s3");
+        server3.start();
     }
     
  }
