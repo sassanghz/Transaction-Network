@@ -364,7 +364,7 @@ public class Server extends Thread {
         double curBalance;      /* Current account balance */
         
         synchronized(account[i]){
-            
+
             curBalance = account[i].getBalance( );          /* Get current account balance */
             
             System.out.println("\n DEBUG : Server.withdraw - " + "i " + i + " Current balance " + curBalance + " Amount " + amount + " " + getServerThreadId());
@@ -382,12 +382,14 @@ public class Server extends Thread {
      * @param i
      */
  
-     public synchronized double query(int i)
-     {  double curBalance;      /* Current account balance */
+     public double query(int i){  
+        double curBalance;      /* Current account balance */
         
-     	curBalance = account[i].getBalance( );          /* Get current account balance */
-        
-        System.out.println("\n DEBUG : Server.query - " + "i " + i + " Current balance " + curBalance + " " + getServerThreadId()); 
+        synchronized(account[i]){
+            curBalance = account[i].getBalance( );          /* Get current account balance */
+            
+            System.out.println("\n DEBUG : Server.query - " + "i " + i + " Current balance " + curBalance + " " + getServerThreadId()); 
+        }
         
         return curBalance;                              /* Return current account balance */
      }
