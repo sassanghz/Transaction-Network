@@ -27,8 +27,8 @@ public class Network extends Thread {
     private static String inBufferStatus, outBufferStatus;     /* Current status of the network buffers - normal, full, empty */
     private static String networkStatus;                       /* Network status - active, inactive */
     /*6 Semaphores */
-    private static Semaphore mutex;
-    private static Semaphore mutex2;
+    private static Semaphore inMutex;
+    private static Semaphore outMutex;
     private static Semaphore items2;
     private static Semaphore items;
     private static Semaphore spaces;
@@ -65,12 +65,12 @@ public class Network extends Thread {
                 
          networkStatus = "active";
 
-         mutex = new Semaphore(1);
-         mutex2 = new Semaphore(1);
+         inMutex = new Semaphore(1);
+         outMutex = new Semaphore(1);
          items = new Semaphore(0);
          items2 = new Semaphore(0);
-         spaces = new Semaphore(maxNbPackets);
-         spaces2 = new Semaphore(maxNbPackets);
+         spaces = new Semaphore(getMaxNbPackets());
+         spaces2 = new Semaphore(getMaxNbPackets());
 
 
       }     
@@ -372,7 +372,7 @@ public class Network extends Thread {
         {
                   try {
                     spaces.acquire();
-                    mutex.acquire();
+                    inMutex.acquire();
                   } catch (InterruptedException e) {
                     e.printStackTrace();
                   }
@@ -400,7 +400,7 @@ public class Network extends Thread {
         			setInBufferStatus("normal");
         		  }
                   // critical section ends here
-                mutex.release();
+                inMutex.release();
                 items.release();
                 return true;
         }   
@@ -414,9 +414,9 @@ public class Network extends Thread {
         {
                  try {
                     items2.acquire();
-                    mutex2.acquire();
+                    outMutex.acquire();
                  } catch (InterruptedException e) {
-                    System.out.println("Error");
+                    e.printStackTrace();
                  }
         		 outPacket.setAccountNumber(outGoingPacket[outputIndexClient].getAccountNumber());
         		 outPacket.setOperationType(outGoingPacket[outputIndexClient].getOperationType());
@@ -429,7 +429,7 @@ public class Network extends Thread {
         		//System.out.println("\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient); 
         		//System.out.println("\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber());
             
-        		 setoutputIndexClient(((getoutputIndexClient( ) + 1) % getMaxNbPackets( ))); /* Increment the output buffer index for the client */
+        		 setoutputIndexClient(((getoutputIndexClient() + 1) % getMaxNbPackets())); /* Increment the output buffer index for the client */
         		 /* Check if output buffer is empty */
         		 if (getoutputIndexClient() == getinputIndexServer())
         		 {	
@@ -441,7 +441,7 @@ public class Network extends Thread {
         		 {
         			setOutBufferStatus("normal"); 
         		 }
-                mutex2.release(); 
+                outMutex.release(); 
                 spaces2.release();
                 return true;
         }   
@@ -458,9 +458,9 @@ public class Network extends Thread {
         {
                 try {
                     spaces2.acquire();
-                    mutex2.acquire();
+                    outMutex.acquire();
                 } catch (InterruptedException e) {
-                    System.out.println("Error");
+                    e.printStackTrace();
                 }
         		outGoingPacket[inputIndexServer].setAccountNumber(outPacket.getAccountNumber());
         		outGoingPacket[inputIndexServer].setOperationType(outPacket.getOperationType());
@@ -485,7 +485,7 @@ public class Network extends Thread {
         		{
         			setOutBufferStatus("normal");
         		}
-            mutex2.release();
+            outMutex.release();
             items2.release();
             return true;
         }   
@@ -500,9 +500,9 @@ public class Network extends Thread {
         {
                 try {
                     items.acquire();
-                    mutex.acquire();
+                    inMutex.acquire();
                 } catch (InterruptedException e) {
-                    System.out.println("Error");
+                    e.printStackTrace();
                 }
                  
     		     inPacket.setAccountNumber(inComingPacket[outputIndexServer].getAccountNumber());
@@ -528,7 +528,7 @@ public class Network extends Thread {
     		    	setInBufferStatus("normal");
     		     }
 
-                 mutex.release();
+                 inMutex.release();
                  spaces.release();
             
              return true;

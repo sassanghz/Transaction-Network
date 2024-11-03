@@ -47,7 +47,7 @@ public class Server extends Thread {
     		serverThreadRunningStatus1 = "idle";				
     		account = new Accounts[maxNbAccounts];
     		System.out.println("\n Inializing the Accounts database ...");
-    		initializeAccounts( );
+    		initializeAccounts();
     		System.out.println("\n Connecting server to network ...");
     		if (!(Network.connect(Network.getServerIP())))
     		{
@@ -181,11 +181,7 @@ public class Server extends Thread {
          */
          public String getServerThreadRunningStatus2()
          {
-             return serverThreadRunningStatus2;
-         }
-
-         public String getServerThreadRunningStatus3(){
-            return serverThreadRunningStatus3;
+            return serverThreadRunningStatus2;
          }
              
         /** 
@@ -196,10 +192,16 @@ public class Server extends Thread {
          */
          public void setServerThreadRunningStatus2(String runningStatus)
          { 
-       	  serverThreadRunningStatus2 = runningStatus;
+       	    serverThreadRunningStatus2 = runningStatus;
          }
 
-         public void setServerThreadRunningStatus3(String runningStatus){
+         public String getServerThreadRunningStatus3()
+         {
+            return serverThreadRunningStatus3;
+         }
+
+         public void setServerThreadRunningStatus3(String runningStatus)
+         {
             serverThreadRunningStatus3 = runningStatus;
          }
          
@@ -282,8 +284,9 @@ public class Server extends Thread {
          /* Process the accounts until the client disconnects */
          while ((!Network.getClientConnectionStatus().equals("disconnected")))
          {
-            if(Network.getClientConnectionStatus().equals("disconnected"))
+            if(Network.getClientConnectionStatus().equals("disconnected")){
                 break;
+            }
         	 
         	 if (!Network.getInBufferStatus().equals("empty"))
         	 { 
@@ -426,7 +429,7 @@ public class Server extends Thread {
     public void run()
     {   
     	long serverStartTime, serverEndTime;
-
+        //Transactions trans = new Transactions();
         serverStartTime = System.currentTimeMillis();
     
 	    //System.out.println("\n DEBUG : Server.run() - starting server thread " + getServerThreadId() + " " + Network.getServerConnectionStatus()); 
@@ -438,24 +441,25 @@ public class Server extends Thread {
         }
 
         if(getServerThreadId().equals("s2")){
-            Transactions trans2 = new Transactions();
-            processTransactions(trans2);
+            Transactions trans = new Transactions();
+            processTransactions(trans);
             setServerThreadRunningStatus2("Terminated");
         }
-
+        
         if(getServerThreadId().equals("s3")){
-            Transactions trans3 = new Transactions();
-            processTransactions(trans3);
+            Transactions trans = new Transactions();
+            processTransactions(trans);
             setServerThreadRunningStatus3("Terminated");
         }
 
-        if(getServerThreadRunningStatus2().equals("Terminated") && getServerThreadRunningStatus1().equals("Terminated") && getServerThreadRunningStatus3().equals("Terminated")){
+        if(getServerThreadRunningStatus1().equals("Terminated") && 
+           getServerThreadRunningStatus2().equals("Terminated") && 
+           getServerThreadRunningStatus3().equals("Terminated")){
+             
             Network.disconnect(Network.getServerIP());
             serverEndTime = System.currentTimeMillis();
             System.out.println("\n Terminating server thread - " + " Running time " + (serverEndTime - serverStartTime) + " milliseconds");
-
-        }
-        
+        }   
     }
 }
 
